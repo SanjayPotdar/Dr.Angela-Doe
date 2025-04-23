@@ -1,6 +1,32 @@
 /* =========================================
-   1. FONT DEFINITIONS
-   ========================================= */
+TABLE OF CONTENTS
+=========================================
+1. FONT DEFINITIONS
+2. RESET & BASE STYLES
+3. VARIABLES
+4. TYPOGRAPHY
+5. BUTTONS
+6. LAYOUT & STRUCTURE
+7. NAVIGATION
+8. HERO SECTION
+9. RATINGS & AVATARS
+10. TUTOR IMAGES
+11. STATS SECTION
+12. ABOUT SECTION
+13. HOW IT WORKS SECTION
+14. COURSES SECTION
+15. CARD STYLES
+16. CAROUSEL CONTROLS
+17. REVIEWS SECTION
+18. NEWSLETTER SECTION
+19. FOOTER SECTION
+20. ANIMATIONS
+21. RESPONSIVE STYLES
+========================================= */
+
+/* =========================================
+1. FONT DEFINITIONS
+========================================= */
 @font-face {
     font-family: 'Gilroy';
     src: url('assets/gilroy/Gilroy-Light.ttf') format('truetype');
@@ -50,8 +76,8 @@
 }
 
 /* =========================================
-   2. RESET & BASE STYLES
-   ========================================= */
+2. RESET & BASE STYLES
+========================================= */
 * {
     margin: 0;
     padding: 0;
@@ -65,8 +91,8 @@ body {
 }
 
 /* =========================================
-   3. VARIABLES
-   ========================================= */
+3. VARIABLES
+========================================= */
 :root {
     --primary-color: #5a9a6f;
     --secondary-color: #515151;
@@ -75,8 +101,8 @@ body {
 }
 
 /* =========================================
-   4. TYPOGRAPHY
-   ========================================= */
+4. TYPOGRAPHY
+========================================= */
 .primary-color {
     color: var(--primary-color);
 }
@@ -106,8 +132,8 @@ body {
 }
 
 /* =========================================
-   5. BUTTONS
-   ========================================= */
+5. BUTTONS
+========================================= */
 .button {
     padding: 12px 24px;
     border-radius: 8px;
@@ -140,8 +166,8 @@ body {
 }
 
 /* =========================================
-   6. LAYOUT & STRUCTURE
-   ========================================= */
+6. LAYOUT & STRUCTURE
+========================================= */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -150,8 +176,8 @@ body {
 }
 
 /* =========================================
-   7. NAVIGATION
-   ========================================= */
+7. NAVIGATION
+========================================= */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -197,8 +223,8 @@ body {
 }
 
 /* =========================================
-   8. HERO SECTION
-   ========================================= */
+8. HERO SECTION
+========================================= */
 .hero {
     position: relative;
     height: 637px;
@@ -256,8 +282,8 @@ body {
 }
 
 /* =========================================
-   9. RATINGS & AVATARS
-   ========================================= */
+9. RATINGS & AVATARS
+========================================= */
 .ratings {
     display: flex;
     align-items: center;
@@ -297,8 +323,8 @@ body {
 }
 
 /* =========================================
-   10. TUTOR IMAGES
-   ========================================= */
+10. TUTOR IMAGES
+========================================= */
 .tutor-image {
     height: 93%;
     object-fit: contain;
@@ -321,8 +347,8 @@ body {
 }
 
 /* =========================================
-   11. STATS SECTION
-   ========================================= */
+11. STATS SECTION
+========================================= */
 .stats-section {
     padding: 80px 5%;
     text-align: center;
@@ -362,8 +388,8 @@ body {
 }
 
 /* =========================================
-   12. ABOUT SECTION
-   ========================================= */
+12. ABOUT SECTION
+========================================= */
 .about-section {
     display: flex;
     padding: 70px 9.3%;
@@ -434,8 +460,8 @@ body {
 }
 
 /* =========================================
-   13. HOW IT WORKS SECTION
-   ========================================= */
+13. HOW IT WORKS SECTION
+========================================= */
 .how-it-works {
     padding: 80px 9.3%;
     text-align: center;
@@ -545,8 +571,8 @@ body {
 }
 
 /* =========================================
-   14. COURSES SECTION
-   ========================================= */
+14. COURSES SECTION
+========================================= */
 .courses-section {
     position: relative;
     padding: 70px 0;
@@ -597,15 +623,15 @@ body {
 .carousel-slide {
     min-width: 100%;
     display: flex;
+    justify-content: center;
     gap: 20px;
     padding: 0 10px;
 }
 
 /* =========================================
-   15. CARD STYLES
-   ========================================= */
+15. CARD STYLES
+========================================= */
 .card {
-    width: 25rem;
     background: var(--white);
     overflow: hidden;
     display: flex;
@@ -615,6 +641,8 @@ body {
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
     transform: translateY(0);
+    width: 100%;
+    max-width: 25rem;
 }
 
 .card.active {
@@ -668,8 +696,8 @@ body {
 }
 
 /* =========================================
-   16. CAROUSEL CONTROLS
-   ========================================= */
+16. CAROUSEL CONTROLS
+========================================= */
 .carousel-indicators {
     display: flex;
     justify-content: center;
@@ -707,8 +735,8 @@ body {
 }
 
 /* =========================================
-   17. REVIEWS SECTION
-   ========================================= */
+17. REVIEWS SECTION
+========================================= */
 .reviews-section {
     padding: 80px 0;
     background-color: var(--white);
@@ -739,15 +767,19 @@ body {
     margin: 0 auto;
     position: relative;
     letter-spacing: -2px;
+    display: inline-block;
+    /* Added to contain the SVG properly */
+
 }
 
 .reviews-title-svg {
     width: 70px;
     height: 70px;
     position: absolute;
-    left: 2%;
-    bottom: 95%;
-    transform: translateY(50%);
+    left: 9px;
+    top: -30px;
+    transform: none;
+    /* Remove the transform */
 }
 
 .navigation-buttons {
@@ -837,8 +869,8 @@ body {
 }
 
 /* =========================================
-   18. NEWSLETTER SECTION
-   ========================================= */
+18. NEWSLETTER SECTION
+========================================= */
 .newsletter-section {
     padding: 0 5.3%;
     background-color: var(--white);
@@ -902,8 +934,8 @@ body {
 }
 
 /* =========================================
-   19. FOOTER SECTION
-   ========================================= */
+19. FOOTER SECTION
+========================================= */
 .footer-section {
     margin-top: 40px;
 }
@@ -1016,15 +1048,58 @@ body {
 }
 
 /* =========================================
-   20. ANIMATIONS
-   ========================================= */
+20. ANIMATIONS
+========================================= */
 [data-aos] {
     transition-duration: 600ms;
 }
 
+/* Adjust container widths to prevent overflow */
+.reviews-container,
+.carousel-container,
+.footer-container {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 /* =========================================
-   21. RESPONSIVE STYLES
-   ========================================= */
+21. RESPONSIVE STYLES
+========================================= */
+/* Fix navigation container on mobile */
+@media (max-width: 768px) {
+
+    html,
+    body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+    }
+
+    [data-aos] {
+        max-width: 100vw;
+        /* Prevent elements from extending beyond viewport */
+    }
+
+    .navbar {
+        width: 100%;
+        padding: 20px 5%;
+        box-sizing: border-box;
+    }
+
+    /* Fix tutor image positioning that might cause overflow */
+    .tutor-image,
+    #tutorwhite {
+        right: 0;
+        max-width: 45%;
+    }
+
+    /* Fix absolute positioned elements that might extend beyond viewport */
+    .about-dots,
+    .how-leaf {
+        max-width: 30%;
+    }
+}
+
 /* Larger screens */
 @media (max-width: 992px) {
     .reviews-container {
@@ -1042,23 +1117,9 @@ body {
     }
 }
 
-/* Medium screens */
-@media (max-width: 900px) {
-    .carousel-slide {
-        flex-direction: column;
-    }
-
-    .card {
-        margin-bottom: 20px;
-    }
-
-    .courses-background {
-        top: 180px;
-    }
-}
-
 /* Tablet and Mobile */
 @media (max-width: 768px) {
+
     /* Navigation */
     .nav-links {
         display: none;
@@ -1066,7 +1127,7 @@ body {
 
     /* Hero section */
     .hero {
-        height: auto;
+        height: none;
         padding-bottom: 420px;
     }
 
@@ -1083,21 +1144,11 @@ body {
     }
 
     .tutor-image {
-        width: 90%;
-        height: auto;
-        position: absolute;
-        top: auto;
-        bottom: 20px;
-        right: 5%;
-        left: 5%;
+        display: none;
     }
 
     #tutorwhite {
-        width: 90%;
-        top: auto;
-        bottom: 60px;
-        right: 5%;
-        left: 5%;
+        display: none;
     }
 
     /* Stats section */
@@ -1141,19 +1192,37 @@ body {
     }
 
     .reviews-title {
-        max-width: 100%;
+        display: inline-block;
         margin: 0;
+        position: relative;
+        padding-top: 35px;
+        /* Add space for the icon */
     }
 
     .reviews-title-svg {
-        position: static;
-        display: block;
-        margin: 0 auto 20px;
+        left: -8px;
+        top: -5px;
+    }
+
+    .title-decoration {
+        bottom: 70px;
+        top: -38px;
+    }
+
+    .hero-background {
+        display: none;
     }
 }
 
 /* Small mobile screens */
 @media (max-width: 600px) {
+
+    .footer-categories,
+    .footer-about,
+    .footer-follow {
+        padding: 0 0px;
+    }
+
     .carousel-header h1 {
         font-size: 2rem;
     }
@@ -1191,3 +1260,52 @@ body {
         padding-right: 0;
     }
 }
+
+/* New responsive styles for course section */
+@media (max-width: 767px) {
+    .carousel-slide {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .card {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .courses-background {
+        top: 22rem;
+        /* Adjust background position for mobile */
+        height: 60%;
+    }
+
+    .card-buttons {
+        flex-direction: column;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .carousel-slide {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .courses-background {
+        top: 26rem;
+        height: 50%;
+    }
+}
+
+@media (min-width: 992px) {
+    .carousel-slide {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+/* =========================================
+END OF STYLES
+========================================= */

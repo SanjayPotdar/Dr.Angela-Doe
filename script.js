@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Smooth scroll for navigation links with hash targets
     const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
     navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const targetElement = document.querySelector(this.getAttribute('href'));
             if (targetElement) {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const targetSelector = this.getAttribute('data-target');
             const targetElement = document.querySelector(targetSelector);
-    
+
             if (targetElement) {
                 targetElement.scrollIntoView({
                     behavior: 'smooth',
@@ -64,9 +64,9 @@ function initStatCounters() {
     // Define target values and suffixes (like %)
     const targetValues = [
         { value: 25356, suffix: '' },
-        { value: 1050,  suffix: '' },
-        { value: 12,    suffix: '' },
-        { value: 95,    suffix: '%' }
+        { value: 1050, suffix: '' },
+        { value: 12, suffix: '' },
+        { value: 95, suffix: '%' }
     ];
 
     // Initialize counters to 0
@@ -76,22 +76,47 @@ function initStatCounters() {
         statNumber.dataset.suffix = targetValues[index].suffix || '';
     });
 
-    // Only trigger counters when stats section becomes visible
+    // Add a check for mobile devices to use a lower threshold
+    const isMobile = window.innerWidth < 768;
+    const threshold = isMobile ? 0.1 : 0.5; // Lower threshold for mobile
+
+    // Function to check if element is in viewport
+    function isInViewport(element) {
+        const rect = element.getBoundingClientRect();
+        return (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.bottom >= 0
+        );
+    }
+
+    // Check if element is already visible on page load
+    if (isInViewport(statSection)) {
+        startAllCounters();
+    }
+
+    // Use IntersectionObserver with appropriate threshold
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 startAllCounters();
-                observer.unobserve(entry.target); // Only trigger once
+                observer.unobserve(entry.target);
             }
         });
     }, {
         rootMargin: '0px',
-        threshold: 0.8
+        threshold: threshold
     });
 
     observer.observe(statSection);
-}
 
+    // Add scroll event as fallback
+    window.addEventListener('scroll', function scrollHandler() {
+        if (isInViewport(statSection)) {
+            startAllCounters();
+            window.removeEventListener('scroll', scrollHandler);
+        }
+    });
+}
 // Animate each stat counter from 0 to target value
 function startAllCounters() {
     const statNumbers = document.querySelectorAll('.stat-number');
@@ -140,6 +165,7 @@ function startStepAnimation() {
     }, animationDuration);
 }
 
+// Replace the entire initCarousel function with this updated version
 function initCarousel() {
     const carouselTrack = document.querySelector('.carousel-track');
     if (!carouselTrack) return;
@@ -155,7 +181,78 @@ function initCarousel() {
     let progressInterval;
     const autoPlayDuration = 5000;
     const totalCards = cards.length;
-    const cardsPerSlide = slides[0].querySelectorAll('.card').length;
+
+    // Determine cards per slide based on screen width
+    function getCardsPerSlide() {
+        if (window.innerWidth < 768) {
+            return 1; // Show 1 card on mobile
+        } else if (window.innerWidth < 992) {
+            return 2; // Show 2 cards on tablet
+        } else {
+            return 3; // Show 3 cards on desktop
+        }
+    }
+
+    let cardsPerSlide = getCardsPerSlide();
+
+    // Update slide layout based on viewport
+    function updateSlideLayout() {
+        cardsPerSlide = getCardsPerSlide();
+
+        // Re-organize cards into slides
+        reorganizeSlides();
+
+        // Update dimensions after reorganization
+        slideWidth = slides[0].getBoundingClientRect().width;
+        updateTrack();
+    }
+
+    // Reorganize cards into slides based on viewport size
+    function reorganizeSlides() {
+        // Clear all slides first
+        slides.forEach(slide => {
+            slide.innerHTML = '';
+        });
+
+        // Calculate how many slides we need
+        const totalSlides = Math.ceil(totalCards / cardsPerSlide);
+
+        // Make sure we have enough slide containers
+        while (carouselTrack.children.length < totalSlides) {
+            const newSlide = document.createElement('div');
+            newSlide.className = 'carousel-slide';
+            carouselTrack.appendChild(newSlide);
+        }
+
+        // Remove extra slides if needed
+        while (carouselTrack.children.length > totalSlides) {
+            carouselTrack.removeChild(carouselTrack.lastChild);
+        }
+
+        // Update indicators
+        const indicatorsContainer = document.querySelector('.carousel-indicators');
+        indicatorsContainer.innerHTML = '';
+
+        for (let i = 0; i < totalSlides; i++) {
+            const indicator = document.createElement('div');
+            indicator.className = 'indicator' + (i === 0 ? ' active' : '');
+            indicator.dataset.index = i;
+            indicator.addEventListener('click', () => {
+                currentSlideIndex = i;
+                updateTrack();
+                activateCard(i * cardsPerSlide);
+            });
+            indicatorsContainer.appendChild(indicator);
+        }
+
+        // Distribute cards into slides
+        cards.forEach((card, idx) => {
+            const slideIndex = Math.floor(idx / cardsPerSlide);
+            if (carouselTrack.children[slideIndex]) {
+                carouselTrack.children[slideIndex].appendChild(card);
+            }
+        });
+    }
 
     function updateTrack() {
         carouselTrack.style.transform = `translateX(-${currentSlideIndex * slideWidth}px)`;
@@ -163,26 +260,40 @@ function initCarousel() {
     }
 
     function updateIndicators() {
+        const indicators = document.querySelectorAll('.indicator');
         indicators.forEach((indicator, index) => {
             indicator.classList.toggle('active', index === currentSlideIndex);
         });
     }
 
     function activateCard(cardIndex) {
+        // Ensure cardIndex is within valid range
+        cardIndex = Math.min(Math.max(cardIndex, 0), totalCards - 1);
+
+        // Deactivate all cards and reset progress bars
         cards.forEach(card => card.classList.remove('active'));
         progressBars.forEach(bar => bar.style.width = '0%');
 
+        // Calculate which slide this card belongs to
         const slideIndex = Math.floor(cardIndex / cardsPerSlide);
+
+        // Update slide if needed
         if (slideIndex !== currentSlideIndex) {
             currentSlideIndex = slideIndex;
             updateTrack();
         }
 
         currentCardIndex = cardIndex;
-        const activeCard = cards[currentCardIndex];
-        activeCard.classList.add('active');
 
-        startProgress(progressBars[currentCardIndex]);
+        // Activate the selected card
+        if (cards[currentCardIndex]) {
+            const activeCard = cards[currentCardIndex];
+            activeCard.classList.add('active');
+
+            if (progressBars[currentCardIndex]) {
+                startProgress(progressBars[currentCardIndex]);
+            }
+        }
     }
 
     function startProgress(progressBar) {
@@ -209,33 +320,77 @@ function initCarousel() {
         activateCard(nextCardIndex);
     }
 
-    function handleResize() {
-        slideWidth = slides[0].getBoundingClientRect().width;
-        updateTrack();
-    }
+    // Listen for window resize and adjust layout
+    window.addEventListener('resize', () => {
+        const oldCardsPerSlide = cardsPerSlide;
+        const newCardsPerSlide = getCardsPerSlide();
 
-    // Allow user to click indicators to change slides
-    indicators.forEach(indicator => {
-        indicator.addEventListener('click', () => {
-            const slideIndex = parseInt(indicator.dataset.index);
-            currentSlideIndex = slideIndex;
+        if (oldCardsPerSlide !== newCardsPerSlide) {
+            updateSlideLayout();
+
+            // Adjust currentCardIndex if necessary to maintain visible state
+            const visibleSlideFirstCard = currentSlideIndex * cardsPerSlide;
+            if (currentCardIndex < visibleSlideFirstCard ||
+                currentCardIndex >= visibleSlideFirstCard + cardsPerSlide) {
+                currentCardIndex = visibleSlideFirstCard;
+            }
+
+            activateCard(currentCardIndex);
+        } else {
+            // Just update dimensions
+            slideWidth = slides[0].getBoundingClientRect().width;
             updateTrack();
-            activateCard(slideIndex * cardsPerSlide);
-        });
+        }
     });
 
     // Allow clicking on individual cards to activate them
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
         card.addEventListener('click', () => {
-            const cardIndex = parseInt(card.dataset.cardIndex);
-            activateCard(cardIndex);
+            activateCard(index);
         });
     });
 
+    // Set up touch swipe capability - FIXED
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    carouselTrack.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    carouselTrack.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const totalSlides = Math.ceil(totalCards / cardsPerSlide);
+
+        if (touchEndX < touchStartX - swipeThreshold) {
+            // Swipe left - next slide
+            if (currentSlideIndex < totalSlides - 1) {
+                currentSlideIndex++;
+                const newCardIndex = currentSlideIndex * cardsPerSlide;
+                updateTrack();
+                // Choose the first card in the new slide
+                activateCard(Math.min(newCardIndex, totalCards - 1));
+            }
+        } else if (touchEndX > touchStartX + swipeThreshold) {
+            // Swipe right - previous slide
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                const newCardIndex = currentSlideIndex * cardsPerSlide;
+                updateTrack();
+                // Choose the first card in the new slide
+                activateCard(newCardIndex);
+            }
+        }
+    }
+
     // Initial setup
-    updateTrack();
+    updateSlideLayout();
     activateCard(0);
-    window.addEventListener('resize', handleResize);
 }
 
 function initReviewsCarousel() {
