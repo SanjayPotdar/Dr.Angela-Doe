@@ -1,7 +1,44 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize components after DOM is fully loaded
-    initializeComponents();
+    // Initialize AOS first with proper mobile settings
+    initializeAOS();
 
+    // Then initialize the rest of the components with a slight delay
+    setTimeout(() => {
+        initializeComponents();
+    }, 200);
+
+    // Setup event handlers for navigation
+    setupNavigation();
+});
+
+function initializeAOS() {
+    // Initialize AOS with better mobile support
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: false, // Changed to false to re-animate on scroll
+        offset: window.innerWidth < 768 ? 10 : 50, // Lower offset for mobile
+        disable: false, // Never disable, even on mobile
+        startEvent: 'DOMContentLoaded',
+        disableMutationObserver: false,
+        throttleDelay: 99,
+        debounceDelay: 50
+    });
+
+    // Re-initialize AOS on window resize
+    window.addEventListener('resize', function () {
+        AOS.refresh();
+    });
+
+    // Force refresh AOS when page is fully loaded
+    window.addEventListener('load', function () {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 500);
+    });
+}
+
+function setupNavigation() {
     // Smooth scroll for navigation links with hash targets
     const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
     navLinks.forEach(link => {
@@ -31,28 +68,28 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-});
+}
 
 function initializeComponents() {
-    // Initialize AOS (Animate On Scroll) library for scroll-triggered animations
-    AOS.init({
-        duration: 800,
-        easing: 'ease-in-out',
-        once: true,
-        offset: 50
-    });
+    // Initialize all component functions with proper error handling
+    safeExecute(startStepAnimation, '.step-item');
+    safeExecute(initCarousel);
+    safeExecute(initReviewsCarousel);
+    safeExecute(setupNewsletterHandling);
+    safeExecute(initStatCounters);
+    safeExecute(updateCopyrightYear); // Add this line
 
-    // Delay additional initializations to ensure AOS animations finish first
-    setTimeout(() => {
-        if (document.querySelector('.step-item')) {
-            startStepAnimation(); // Step-by-step highlighting animation
+}
+
+// Safely execute a function only if required elements exist
+function safeExecute(fn, selector) {
+    try {
+        if (!selector || document.querySelector(selector)) {
+            fn();
         }
-
-        initCarousel();            // Card carousel
-        initReviewsCarousel();     // Testimonials/reviews slider
-        setupNewsletterHandling(); // Newsletter sign-up button logic
-        initStatCounters();        // Animated stats counter (when in view)
-    }, 2000);
+    } catch (error) {
+        console.error(`Error executing ${fn.name}:`, error);
+    }
 }
 
 function initStatCounters() {
@@ -71,30 +108,18 @@ function initStatCounters() {
 
     // Initialize counters to 0
     statNumbers.forEach((statNumber, index) => {
-        statNumber.textContent = '0' + (targetValues[index].suffix || '');
-        statNumber.dataset.target = targetValues[index].value;
-        statNumber.dataset.suffix = targetValues[index].suffix || '';
+        if (index < targetValues.length) {
+            statNumber.textContent = '0' + (targetValues[index].suffix || '');
+            statNumber.dataset.target = targetValues[index].value;
+            statNumber.dataset.suffix = targetValues[index].suffix || '';
+        }
     });
 
     // Add a check for mobile devices to use a lower threshold
     const isMobile = window.innerWidth < 768;
     const threshold = isMobile ? 0.1 : 0.5; // Lower threshold for mobile
 
-    // Function to check if element is in viewport
-    function isInViewport(element) {
-        const rect = element.getBoundingClientRect();
-        return (
-            rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.bottom >= 0
-        );
-    }
-
-    // Check if element is already visible on page load
-    if (isInViewport(statSection)) {
-        startAllCounters();
-    }
-
-    // Use IntersectionObserver with appropriate threshold
+    // Create an intersection observer for starting counters
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -108,23 +133,18 @@ function initStatCounters() {
     });
 
     observer.observe(statSection);
-
-    // Add scroll event as fallback
-    window.addEventListener('scroll', function scrollHandler() {
-        if (isInViewport(statSection)) {
-            startAllCounters();
-            window.removeEventListener('scroll', scrollHandler);
-        }
-    });
 }
+
 // Animate each stat counter from 0 to target value
 function startAllCounters() {
     const statNumbers = document.querySelectorAll('.stat-number');
     const duration = 1000;
 
     statNumbers.forEach(statNumber => {
+        if (!statNumber.dataset.target) return;
+
         const target = parseInt(statNumber.dataset.target);
-        const suffix = statNumber.dataset.suffix;
+        const suffix = statNumber.dataset.suffix || '';
         const increment = target / (duration / 16);
         let current = 0;
         const startTime = Date.now();
@@ -156,6 +176,7 @@ function startStepAnimation() {
     const animationDuration = 3000;
     let currentStep = 0;
 
+    steps.forEach(step => step.classList.remove('active'));
     steps[0].classList.add('active');
 
     setInterval(() => {
@@ -165,19 +186,17 @@ function startStepAnimation() {
     }, animationDuration);
 }
 
-// Replace the entire initCarousel function with this updated version
 function initCarousel() {
     const carouselTrack = document.querySelector('.carousel-track');
     if (!carouselTrack) return;
 
     const slides = document.querySelectorAll('.carousel-slide');
-    const indicators = document.querySelectorAll('.indicator');
     const cards = document.querySelectorAll('.card');
-    const progressBars = document.querySelectorAll('.progress-bar');
+    let progressBars = []; // We'll populate this after cards are reorganized
 
     let currentSlideIndex = 0;
     let currentCardIndex = 0;
-    let slideWidth = slides[0].getBoundingClientRect().width;
+    let slideWidth = slides[0]?.getBoundingClientRect().width || 0;
     let progressInterval;
     const autoPlayDuration = 5000;
     const totalCards = cards.length;
@@ -202,61 +221,75 @@ function initCarousel() {
         // Re-organize cards into slides
         reorganizeSlides();
 
+        // Re-select progress bars after reorganization
+        progressBars = document.querySelectorAll('.progress-bar');
+
         // Update dimensions after reorganization
-        slideWidth = slides[0].getBoundingClientRect().width;
-        updateTrack();
+        const newSlides = document.querySelectorAll('.carousel-slide');
+        if (newSlides.length > 0) {
+            slideWidth = newSlides[0].getBoundingClientRect().width;
+            updateTrack();
+        }
     }
 
     // Reorganize cards into slides based on viewport size
     function reorganizeSlides() {
         // Clear all slides first
-        slides.forEach(slide => {
-            slide.innerHTML = '';
-        });
+        if (carouselTrack) {
+            while (carouselTrack.firstChild) {
+                carouselTrack.removeChild(carouselTrack.firstChild);
+            }
+        }
 
         // Calculate how many slides we need
         const totalSlides = Math.ceil(totalCards / cardsPerSlide);
 
-        // Make sure we have enough slide containers
-        while (carouselTrack.children.length < totalSlides) {
+        // Create slide containers
+        for (let i = 0; i < totalSlides; i++) {
             const newSlide = document.createElement('div');
             newSlide.className = 'carousel-slide';
             carouselTrack.appendChild(newSlide);
         }
 
-        // Remove extra slides if needed
-        while (carouselTrack.children.length > totalSlides) {
-            carouselTrack.removeChild(carouselTrack.lastChild);
-        }
-
         // Update indicators
         const indicatorsContainer = document.querySelector('.carousel-indicators');
-        indicatorsContainer.innerHTML = '';
+        if (indicatorsContainer) {
+            indicatorsContainer.innerHTML = '';
 
-        for (let i = 0; i < totalSlides; i++) {
-            const indicator = document.createElement('div');
-            indicator.className = 'indicator' + (i === 0 ? ' active' : '');
-            indicator.dataset.index = i;
-            indicator.addEventListener('click', () => {
-                currentSlideIndex = i;
-                updateTrack();
-                activateCard(i * cardsPerSlide);
-            });
-            indicatorsContainer.appendChild(indicator);
+            for (let i = 0; i < totalSlides; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator' + (i === 0 ? ' active' : '');
+                indicator.dataset.index = i;
+                indicator.addEventListener('click', () => {
+                    currentSlideIndex = i;
+                    updateTrack();
+                    activateCard(i * cardsPerSlide);
+                });
+                indicatorsContainer.appendChild(indicator);
+            }
         }
 
         // Distribute cards into slides
         cards.forEach((card, idx) => {
             const slideIndex = Math.floor(idx / cardsPerSlide);
             if (carouselTrack.children[slideIndex]) {
-                carouselTrack.children[slideIndex].appendChild(card);
+                carouselTrack.children[slideIndex].appendChild(card.cloneNode(true));
             }
+        });
+
+        // Re-attach event listeners to the cloned cards
+        document.querySelectorAll('.carousel-slide .card').forEach((card, index) => {
+            card.addEventListener('click', () => {
+                activateCard(index);
+            });
         });
     }
 
     function updateTrack() {
-        carouselTrack.style.transform = `translateX(-${currentSlideIndex * slideWidth}px)`;
-        updateIndicators();
+        if (carouselTrack) {
+            carouselTrack.style.transform = `translateX(-${currentSlideIndex * slideWidth}px)`;
+            updateIndicators();
+        }
     }
 
     function updateIndicators() {
@@ -271,8 +304,12 @@ function initCarousel() {
         cardIndex = Math.min(Math.max(cardIndex, 0), totalCards - 1);
 
         // Deactivate all cards and reset progress bars
-        cards.forEach(card => card.classList.remove('active'));
-        progressBars.forEach(bar => bar.style.width = '0%');
+        document.querySelectorAll('.carousel-slide .card').forEach(card => card.classList.remove('active'));
+
+        // Reset all progress bars
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            if (bar) bar.style.width = '0%';
+        });
 
         // Calculate which slide this card belongs to
         const slideIndex = Math.floor(cardIndex / cardsPerSlide);
@@ -286,12 +323,15 @@ function initCarousel() {
         currentCardIndex = cardIndex;
 
         // Activate the selected card
-        if (cards[currentCardIndex]) {
-            const activeCard = cards[currentCardIndex];
+        const activeCards = document.querySelectorAll('.carousel-slide .card');
+        if (activeCards[currentCardIndex]) {
+            const activeCard = activeCards[currentCardIndex];
             activeCard.classList.add('active');
 
-            if (progressBars[currentCardIndex]) {
-                startProgress(progressBars[currentCardIndex]);
+            // Find the progress bar inside this specific card
+            const progressBar = activeCard.querySelector('.progress-bar');
+            if (progressBar) {
+                startProgress(progressBar);
             }
         }
     }
@@ -320,48 +360,18 @@ function initCarousel() {
         activateCard(nextCardIndex);
     }
 
-    // Listen for window resize and adjust layout
-    window.addEventListener('resize', () => {
-        const oldCardsPerSlide = cardsPerSlide;
-        const newCardsPerSlide = getCardsPerSlide();
-
-        if (oldCardsPerSlide !== newCardsPerSlide) {
-            updateSlideLayout();
-
-            // Adjust currentCardIndex if necessary to maintain visible state
-            const visibleSlideFirstCard = currentSlideIndex * cardsPerSlide;
-            if (currentCardIndex < visibleSlideFirstCard ||
-                currentCardIndex >= visibleSlideFirstCard + cardsPerSlide) {
-                currentCardIndex = visibleSlideFirstCard;
-            }
-
-            activateCard(currentCardIndex);
-        } else {
-            // Just update dimensions
-            slideWidth = slides[0].getBoundingClientRect().width;
-            updateTrack();
-        }
-    });
-
-    // Allow clicking on individual cards to activate them
-    cards.forEach((card, index) => {
-        card.addEventListener('click', () => {
-            activateCard(index);
-        });
-    });
-
-    // Set up touch swipe capability - FIXED
+    // Set up touch swipe capability
     let touchStartX = 0;
     let touchEndX = 0;
 
     carouselTrack.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
-    }, false);
+    }, { passive: true });
 
     carouselTrack.addEventListener('touchend', (e) => {
         touchEndX = e.changedTouches[0].screenX;
         handleSwipe();
-    }, false);
+    }, { passive: true });
 
     function handleSwipe() {
         const swipeThreshold = 50;
@@ -373,7 +383,6 @@ function initCarousel() {
                 currentSlideIndex++;
                 const newCardIndex = currentSlideIndex * cardsPerSlide;
                 updateTrack();
-                // Choose the first card in the new slide
                 activateCard(Math.min(newCardIndex, totalCards - 1));
             }
         } else if (touchEndX > touchStartX + swipeThreshold) {
@@ -382,11 +391,31 @@ function initCarousel() {
                 currentSlideIndex--;
                 const newCardIndex = currentSlideIndex * cardsPerSlide;
                 updateTrack();
-                // Choose the first card in the new slide
                 activateCard(newCardIndex);
             }
         }
     }
+
+    // Listen for window resize and adjust layout
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updateSlideLayout();
+
+            // Adjust currentCardIndex if necessary to maintain visible state
+            const visibleSlideFirstCard = currentSlideIndex * cardsPerSlide;
+            if (currentCardIndex < visibleSlideFirstCard ||
+                currentCardIndex >= visibleSlideFirstCard + cardsPerSlide) {
+                currentCardIndex = visibleSlideFirstCard;
+            }
+
+            activateCard(currentCardIndex);
+
+            // Force refresh AOS for elements after carousel
+            AOS.refresh();
+        }, 250); // Debounce resize events
+    });
 
     // Initial setup
     updateSlideLayout();
@@ -400,6 +429,8 @@ function initReviewsCarousel() {
     const prevButton = document.querySelector('.reviews-section .prev-button');
     const nextButton = document.querySelector('.reviews-section .next-button');
     const cards = document.querySelectorAll('.review-card');
+
+    if (!cards.length) return;
 
     let currentIndex = 0;
     const visibleCards = getVisibleCardsCount();
@@ -439,6 +470,36 @@ function initReviewsCarousel() {
         });
     }
 
+    // Add touch swipe support for reviews
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    container.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    container.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleReviewsSwipe();
+    }, { passive: true });
+
+    function handleReviewsSwipe() {
+        const swipeThreshold = 50;
+        if (touchEndX < touchStartX - swipeThreshold) {
+            // Swipe left - next slide
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+                updateCarousel();
+            }
+        } else if (touchEndX > touchStartX + swipeThreshold) {
+            // Swipe right - previous slide
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        }
+    }
+
     // Recalculate positions and limits on window resize
     window.addEventListener('resize', function () {
         const newVisibleCards = getVisibleCardsCount();
@@ -459,5 +520,20 @@ function setupNewsletterHandling() {
         getStartedBtn.addEventListener('click', function () {
             alert('Thank you for your interest in our newsletter!');
         });
+    }
+}
+
+// Fix for mobile view issues: Force refresh AOS when orientation changes
+window.addEventListener('orientationchange', function () {
+    setTimeout(() => {
+        AOS.refresh();
+    }, 500);
+});
+
+// Add this function to your script.js file
+function updateCopyrightYear() {
+    const yearElement = document.getElementById('currentYear');
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
     }
 }

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sanjaypotdar.github.io/Dr.Angela-Doe/sitemap.xml

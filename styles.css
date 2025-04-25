@@ -4,24 +4,25 @@ TABLE OF CONTENTS
 1. FONT DEFINITIONS
 2. RESET & BASE STYLES
 3. VARIABLES
-4. TYPOGRAPHY
-5. BUTTONS
-6. LAYOUT & STRUCTURE
-7. NAVIGATION
-8. HERO SECTION
-9. RATINGS & AVATARS
-10. TUTOR IMAGES
-11. STATS SECTION
-12. ABOUT SECTION
-13. HOW IT WORKS SECTION
-14. COURSES SECTION
-15. CARD STYLES
-16. CAROUSEL CONTROLS
-17. REVIEWS SECTION
-18. NEWSLETTER SECTION
-19. FOOTER SECTION
-20. ANIMATIONS
-21. RESPONSIVE STYLES
+4. CUSTOM SCROLLBAR
+5. TYPOGRAPHY
+6. BUTTONS
+7. LAYOUT & STRUCTURE
+8. NAVIGATION
+9. HERO SECTION
+10. RATINGS & AVATARS
+11. TUTOR IMAGES
+12. STATS SECTION
+13. ABOUT SECTION
+14. HOW IT WORKS SECTION
+15. COURSES SECTION
+16. CARD STYLES
+17. CAROUSEL CONTROLS
+18. REVIEWS SECTION
+19. NEWSLETTER SECTION
+20. FOOTER SECTION
+21. ANIMATIONS
+22. RESPONSIVE STYLES
 ========================================= */
 
 /* =========================================
@@ -90,6 +91,13 @@ body {
     color: #333;
 }
 
+::selection {
+    background: #ff6f61c7;
+    /* Coral background */
+    color: #000000;
+    /* Black text */
+}
+
 /* =========================================
 3. VARIABLES
 ========================================= */
@@ -101,7 +109,36 @@ body {
 }
 
 /* =========================================
-4. TYPOGRAPHY
+4. CUSTOM SCROLLBAR
+========================================= */
+/* For Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--white);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+    border: 2px solid var(--white);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4a8a5f;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--white);
+}
+
+/* =========================================
+5. TYPOGRAPHY
 ========================================= */
 .primary-color {
     color: var(--primary-color);
@@ -132,7 +169,7 @@ body {
 }
 
 /* =========================================
-5. BUTTONS
+6. BUTTONS
 ========================================= */
 .button {
     padding: 12px 24px;
@@ -166,7 +203,7 @@ body {
 }
 
 /* =========================================
-6. LAYOUT & STRUCTURE
+7. LAYOUT & STRUCTURE
 ========================================= */
 .container {
     max-width: 1200px;
@@ -176,7 +213,7 @@ body {
 }
 
 /* =========================================
-7. NAVIGATION
+8. NAVIGATION
 ========================================= */
 .navbar {
     display: flex;
@@ -223,7 +260,7 @@ body {
 }
 
 /* =========================================
-8. HERO SECTION
+9. HERO SECTION
 ========================================= */
 .hero {
     position: relative;
@@ -246,7 +283,7 @@ body {
 .subtitle {
     font-size: 16px;
     margin-bottom: 20px;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--secondary-color);
     max-width: 50%;
 }
@@ -272,6 +309,7 @@ body {
     color: var(--secondary-color);
     font-size: 19px;
     line-height: 140%;
+    font-weight: 500;
 }
 
 .button-group {
@@ -282,7 +320,7 @@ body {
 }
 
 /* =========================================
-9. RATINGS & AVATARS
+10. RATINGS & AVATARS
 ========================================= */
 .ratings {
     display: flex;
@@ -323,7 +361,7 @@ body {
 }
 
 /* =========================================
-10. TUTOR IMAGES
+11. TUTOR IMAGES
 ========================================= */
 .tutor-image {
     height: 93%;
@@ -347,7 +385,7 @@ body {
 }
 
 /* =========================================
-11. STATS SECTION
+12. STATS SECTION
 ========================================= */
 .stats-section {
     padding: 80px 5%;
@@ -388,7 +426,7 @@ body {
 }
 
 /* =========================================
-12. ABOUT SECTION
+13. ABOUT SECTION
 ========================================= */
 .about-section {
     display: flex;
@@ -460,7 +498,7 @@ body {
 }
 
 /* =========================================
-13. HOW IT WORKS SECTION
+14. HOW IT WORKS SECTION
 ========================================= */
 .how-it-works {
     padding: 80px 9.3%;
@@ -571,7 +609,7 @@ body {
 }
 
 /* =========================================
-14. COURSES SECTION
+15. COURSES SECTION
 ========================================= */
 .courses-section {
     position: relative;
@@ -629,7 +667,7 @@ body {
 }
 
 /* =========================================
-15. CARD STYLES
+16. CARD STYLES
 ========================================= */
 .card {
     background: var(--white);
@@ -696,7 +734,7 @@ body {
 }
 
 /* =========================================
-16. CAROUSEL CONTROLS
+17. CAROUSEL CONTROLS
 ========================================= */
 .carousel-indicators {
     display: flex;
@@ -735,7 +773,7 @@ body {
 }
 
 /* =========================================
-17. REVIEWS SECTION
+18. REVIEWS SECTION
 ========================================= */
 .reviews-section {
     padding: 80px 0;
@@ -869,7 +907,7 @@ body {
 }
 
 /* =========================================
-18. NEWSLETTER SECTION
+19. NEWSLETTER SECTION
 ========================================= */
 .newsletter-section {
     padding: 0 5.3%;
@@ -934,7 +972,7 @@ body {
 }
 
 /* =========================================
-19. FOOTER SECTION
+20. FOOTER SECTION
 ========================================= */
 .footer-section {
     margin-top: 40px;
@@ -1048,7 +1086,7 @@ body {
 }
 
 /* =========================================
-20. ANIMATIONS
+21. ANIMATIONS
 ========================================= */
 [data-aos] {
     transition-duration: 600ms;
@@ -1063,7 +1101,7 @@ body {
 }
 
 /* =========================================
-21. RESPONSIVE STYLES
+22. RESPONSIVE STYLES
 ========================================= */
 /* Fix navigation container on mobile */
 @media (max-width: 768px) {
